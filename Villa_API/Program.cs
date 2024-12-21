@@ -1,4 +1,6 @@
-using Serilog;
+
+using Villa_API.Logging;
+using Villa_API.LoggingV2;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,7 @@ builder.Services.AddControllers(//option =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder .Services.AddSingleton<ILogging, LoggingV2>();
 
 var app = builder.Build();
 
