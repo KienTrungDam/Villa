@@ -1,15 +1,19 @@
 
-using Villa_API.Logging;
-using Villa_API.LoggingV2;
+using Microsoft.EntityFrameworkCore;
+using Villa_API;
+using Villa_API.Data;
+using Villa_API.Repository;
+using Villa_API.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//add log in file
-//Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-//    .WriteTo.File("log/villaLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
-
-//builder.Host.UseSerilog();
+//Add Database
+builder.Services.AddDbContext<ApplicationDbContext>(option => {
+    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
+});
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddAutoMapper(typeof(MappingConfig));
 
 builder.Services.AddControllers(//option =>
     //option.ReturnHttpNotAcceptable = true
@@ -17,7 +21,7 @@ builder.Services.AddControllers(//option =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder .Services.AddSingleton<ILogging, LoggingV2>();
+
 
 var app = builder.Build();
 
