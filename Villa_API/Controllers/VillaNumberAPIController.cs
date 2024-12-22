@@ -92,10 +92,17 @@ namespace Villa_API.Controllers
                 {
                     return BadRequest(createVillaNumberDTO);
                 }
-                /*if(villaDTO.Id > 0)
+                if(await _unitOfWork.VillaNumber.GetAsync(u => u.VillaNo == createVillaNumberDTO.VillaNo) != null)
                 {
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }*/
+                    ModelState.AddModelError("CustomError", "Villa Number already exists");
+                    return BadRequest(ModelState);
+                }
+                if(await _unitOfWork.Villa.GetAsync(u => u.Id == createVillaNumberDTO.VillaId) == null)
+                {
+                    ModelState.AddModelError("CustomError", "Villa Id does not exist");
+                    return BadRequest(ModelState);
+                }
+
                 VillaNumber villaNumber = _mapper.Map<VillaNumber>(createVillaNumberDTO);
             
                 //lay so id lon nhat trong list roi +1
@@ -151,6 +158,11 @@ namespace Villa_API.Controllers
                 if (villaNo != updateVillaNumberDTO.VillaNo || updateVillaNumberDTO == null)
                 {
                     return BadRequest();
+                }
+                if (await _unitOfWork.Villa.GetAsync(u => u.Id == updateVillaNumberDTO.VillaId) == null)
+                {
+                    ModelState.AddModelError("CustomError", "Villa Id does not exist");  
+                    return BadRequest(ModelState);
                 }
                 //entityframecore tu dong update theo id
                 VillaNumber villaNumber = _mapper.Map<VillaNumber>(updateVillaNumberDTO);
