@@ -9,6 +9,7 @@ namespace Villa_API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // tu dong sinh ra id va tu dong tang gia tri id 
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public string Details { get; set; }
         public double Rate { get; set; }
