@@ -86,8 +86,10 @@ namespace Villa_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> CreateVilla([FromBody] VillaCreateDTO createDTO)
         {
+            var temp = await _unitOfWork.Villa.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower());
             try { 
-                if(await _unitOfWork.Villa.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null    )
+
+                if(await _unitOfWork.Villa.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
                 {
                     ModelState.AddModelError("CustomError", "Villa name already exists");
                     return BadRequest(ModelState);

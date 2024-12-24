@@ -33,7 +33,7 @@ namespace Villa_API.Controllers
         {
             try
             {
-                IEnumerable<VillaNumber> all = await _unitOfWork.VillaNumber.GetAllAsync();
+                IEnumerable<VillaNumber> all = await _unitOfWork.VillaNumber.GetAllAsync(includeProperties: "Villa");
                 _response.Result = _mapper.Map<List<VillaNumberDTO>>(all);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -61,7 +61,7 @@ namespace Villa_API.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var villa = await _unitOfWork.VillaNumber.GetAsync(u => u.VillaNo == villaNo);
+                var villa = await _unitOfWork.VillaNumber.GetAsync(u => u.VillaNo == villaNo, includeProperties: "Villa");
                 if(villa == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;

@@ -40,9 +40,66 @@ namespace Villa_Web.Controllers
                 var response = await _villaService.CreateAsync<APIResponse>(villaDTO);
                 if (response.IsSuccess)
                 {
+                    TempData["success"] = "Created seccessfully";
                     return RedirectToAction(nameof(IndexVilla));
                 }
             }
+            TempData["error"] = "Created failed";
+            return View(villaDTO);
+        }
+
+        public async Task<IActionResult> UpdateVilla(int villaId)
+        {
+            var response = await _villaService.GetAsync<APIResponse>(villaId);
+            if (response.IsSuccess)
+            {
+                VillaDTO villaDTO = JsonConvert.DeserializeObject<VillaDTO>(Convert.ToString(response.Result));
+                var temp = _mapper.Map<VillaUpdateDTO>(villaDTO);
+                return View(temp);
+            }
+            return NotFound();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateVilla(VillaUpdateDTO villaUpdateDTO)
+        {
+            if(ModelState.IsValid)
+            {
+                var response = await _villaService.UpdateAsync<APIResponse>(villaUpdateDTO);
+                if (response != null && response.IsSuccess)
+                {
+                    TempData["success"] = "Updated seccessfully";
+                    return RedirectToAction(nameof(IndexVilla));
+                }
+            }
+            TempData["error"] = "Update failed";
+            return View(villaUpdateDTO);
+        }
+        public async Task<IActionResult> DeleteVilla(int villaId)
+        {
+            var response = await _villaService.GetAsync<APIResponse>(villaId);
+            if (response.IsSuccess)
+            {
+                VillaDTO villaDTO = JsonConvert.DeserializeObject<VillaDTO>(Convert.ToString(response.Result));
+                var temp = _mapper.Map<VillaUpdateDTO>(villaDTO);
+                return View(temp);
+            }
+            return NotFound();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteVilla(VillaDTO villaDTO)
+        {
+            if (ModelState.IsValid)
+            {
+                var response = await _villaService.DeleteAsync<APIResponse>(villaDTO.Id);
+                if (response != null && response.IsSuccess)
+                {
+                    TempData["success"] = "Deleted seccessfully";
+                    return RedirectToAction(nameof(IndexVilla));
+                }
+            }
+            TempData["error"] = "Deleted failed";
             return View(villaDTO);
         }
     }
