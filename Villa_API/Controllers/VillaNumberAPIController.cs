@@ -94,12 +94,12 @@ namespace Villa_API.Controllers
                 }
                 if(await _unitOfWork.VillaNumber.GetAsync(u => u.VillaNo == createVillaNumberDTO.VillaNo) != null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa Number already exists");
+                    ModelState.AddModelError("ErrorMessages", "Villa Number already exists");
                     return BadRequest(ModelState);
                 }
                 if(await _unitOfWork.Villa.GetAsync(u => u.Id == createVillaNumberDTO.VillaId) == null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa Id does not exist");
+                    ModelState.AddModelError("ErrorMessages", "Villa Id does not exist");
                     return BadRequest(ModelState);
                 }
 
@@ -161,7 +161,7 @@ namespace Villa_API.Controllers
                 }
                 if (await _unitOfWork.Villa.GetAsync(u => u.Id == updateVillaNumberDTO.VillaId) == null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa Id does not exist");  
+                    ModelState.AddModelError("ErrorMessages", "Villa Id does not exist");  
                     return BadRequest(ModelState);
                 }
                 //entityframecore tu dong update theo id

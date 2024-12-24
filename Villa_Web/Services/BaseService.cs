@@ -53,8 +53,27 @@ namespace Villa_Web.Services
                 // doc response tu server(API)
                 var apiContent = await apiResponse.Content.ReadAsStringAsync();
                 // chuyen response tu json sang object
+
+                try
+                {
+                    APIResponse ApiResponse = JsonConvert.DeserializeObject<APIResponse>(apiContent);
+                    if (apiResponse.StatusCode == System.Net.HttpStatusCode.BadRequest || apiResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        ApiResponse.IsSuccess = false;
+                        ApiResponse.StatusCode = System.Net.HttpStatusCode.BadRequest;
+                        var res = JsonConvert.SerializeObject(ApiResponse);
+                        var returnObj = JsonConvert.DeserializeObject<T>(res);
+                        return returnObj;
+                    }
+                }
+                catch (Exception e)
+                {
+                    var exception = JsonConvert.DeserializeObject<T>(apiContent);
+                    return exception;
+                }
                 var APIResponse = JsonConvert.DeserializeObject<T>(apiContent);
                 return APIResponse;
+
             }
             catch (Exception e)
             {
