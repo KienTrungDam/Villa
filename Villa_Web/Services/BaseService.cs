@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using System.Text;
 using Villa.Utility;
 using Villa_Web.Models;
@@ -47,6 +48,12 @@ namespace Villa_Web.Services
                 }
 
                 HttpResponseMessage apiResponse = null;
+
+                if(apiRequest.Token != null)
+                {
+                    // add token vao header
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.Token);
+                }
 
                 // SendAsync: gui request len server(API) va nhan response tu server(API)
                 apiResponse = await client.SendAsync(message);

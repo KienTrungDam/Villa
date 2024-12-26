@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace Villa_API.Controllers
     //[Route("api/[controller]")]
     [Route("api/VillaNumberAPI")]
     [ApiController]
+    //[ApiVersion("1.0")]
     public class VillaNumberAPIController : ControllerBase
     {
         protected APIResponse _response;
@@ -47,6 +49,7 @@ namespace Villa_API.Controllers
             return _response;
         }
 
+
         [HttpGet("{villaNo:int}", Name = "GetVillaNumber")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -59,12 +62,14 @@ namespace Villa_API.Controllers
                 if (villaNo == 0)
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess = false;
                     return BadRequest(_response);
                 }
                 var villa = await _unitOfWork.VillaNumber.GetAsync(u => u.VillaNo == villaNo, includeProperties: "Villa");
                 if(villa == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
+                    _response.IsSuccess = false;
                     return NotFound(_response);
                 }
                 _response.Result = _mapper.Map<VillaNumberDTO>(villa);
@@ -79,7 +84,7 @@ namespace Villa_API.Controllers
             }
             return _response;
         }
-
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -119,7 +124,7 @@ namespace Villa_API.Controllers
             }
             return _response;
         }
-
+        [Authorize(Roles = "admin")]
         [HttpDelete("{villaNo:int}", Name = "DeleteVillaNumber")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -149,6 +154,7 @@ namespace Villa_API.Controllers
             }
             return _response;
         }
+        [Authorize(Roles = "admin")]
         [HttpPut("{villaNo:int}", Name = "UpdateVillaNumber")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

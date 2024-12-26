@@ -43,12 +43,21 @@ namespace Villa_API.Repository
             return await query.FirstOrDefaultAsync();
         }       
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null, int pageSize = 3, int pageNumber = 1)
         {
             IQueryable<T> query = dbSet;
             if (filter != null)
             {
                 query = query.Where(filter);
+            }
+            if(pageSize > 0)
+            {
+                if(pageNumber > 100)
+                {
+                    pageSize = 100;
+                }
+                //phan trang: 3 * (1-1) = 0 trang 1 khong bo qua cai nao, neu trang thu 2: 3 * (2-1) = 3 trang thu2 bo qua 3 cai dau tien chi lay tu cai thu 4
+                query = query.Skip(pageSize*(pageNumber - 1)).Take(pageSize);
             }
             if (includeProperties != null)
             {
@@ -60,7 +69,7 @@ namespace Villa_API.Repository
             return await query.ToListAsync();
         }
 
-        public async Task RemoveAsync(T entity)
+        public async Task RemoveAsync(T entity)     
         {
             dbSet.Remove(entity);
             await SaveAsync();

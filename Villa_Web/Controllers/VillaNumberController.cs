@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using Villa.Utility;
 using Villa_API.Models;
 using Villa_Web.Models.DTO;
 using Villa_Web.Models.VM;
@@ -26,18 +28,18 @@ namespace Villa_Web.Controllers
         {
             List<VillaNumberDTO> list = new();
 
-            var response = await _villaNumberService.GetAllAsync<APIResponse>();
+            var response = await _villaNumberService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
                 list = JsonConvert.DeserializeObject<List<VillaNumberDTO>>(Convert.ToString(response.Result));
             }
             return View(list);
         }
-
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> CreateVillaNumber()
         {
             VillaNumberCreateVM villaVM = new();
-            var response = await _villaService.GetAllAsync<APIResponse>();
+            var response = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
 
@@ -56,7 +58,7 @@ namespace Villa_Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _villaNumberService.CreateAsync<APIResponse>(villaNumberVM.VillaNumber);
+                var response = await _villaNumberService.CreateAsync<APIResponse>(villaNumberVM.VillaNumber, HttpContext.Session.GetString(SD.SessionToken));
                 if (response.IsSuccess && response != null)
                 {
                     TempData["success"] = "Created seccessfully";
@@ -72,7 +74,7 @@ namespace Villa_Web.Controllers
             }
             //TempData["error"] = "Created failed";
             //khi loi chay lai view va lay lai list villa
-            var resp = await _villaService.GetAllAsync<APIResponse>();
+            var resp = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (resp != null && resp.IsSuccess)
             {
 
@@ -86,12 +88,12 @@ namespace Villa_Web.Controllers
             return View(villaNumberVM);
 
         }
-
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateVillaNumber(int villaNo)
         {
             VillaNumberUpdateVM villaVM = new();
             
-            var response = await _villaNumberService.GetAsync<APIResponse>(villaNo);
+            var response = await _villaNumberService.GetAsync<APIResponse>(villaNo, HttpContext.Session.GetString(SD.SessionToken));
             // gan gia tri cho villaVM.VillaNumber
             if (response.IsSuccess)
             {               
@@ -99,7 +101,7 @@ namespace Villa_Web.Controllers
                 villaVM.VillaNumber = _mapper.Map<VillaNumberUpdateDTO>(villaNumberDTO);
             }
             //gan gia tri cho villaVM.VillaList
-            response = await _villaService.GetAllAsync<APIResponse>();
+            response = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
 
@@ -119,7 +121,7 @@ namespace Villa_Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _villaNumberService.UpdateAsync<APIResponse>(villaUpdateVM.VillaNumber);
+                var response = await _villaNumberService.UpdateAsync<APIResponse>(villaUpdateVM.VillaNumber, HttpContext.Session.GetString(SD.SessionToken));
                 if (response != null && response.IsSuccess)
                 {
                     TempData["success"] = "Updated seccessfully";
@@ -134,7 +136,7 @@ namespace Villa_Web.Controllers
                 }
             }
             //list villa
-            var res = await _villaService.GetAllAsync<APIResponse>();
+            var res = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (res != null && res.IsSuccess)
             {
 
@@ -150,11 +152,12 @@ namespace Villa_Web.Controllers
             TempData["error"] = "Update failed";
             return View(villaUpdateVM);
         }
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteVillaNumber(int villaNo)
         {
             VillaNumberDeleteVM villaVM = new();
 
-            var response = await _villaNumberService.GetAsync<APIResponse>(villaNo);
+            var response = await _villaNumberService.GetAsync<APIResponse>(villaNo, HttpContext.Session.GetString(SD.SessionToken));
             // gan gia tri cho villaVM.VillaNumber
             if (response.IsSuccess)
             {
@@ -162,7 +165,7 @@ namespace Villa_Web.Controllers
                 villaVM.VillaNumber = villaNumberDTO;
             }
             //gan gia tri cho villaVM.VillaList
-            response = await _villaService.GetAllAsync<APIResponse>();
+            response = await _villaService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
 
@@ -182,7 +185,7 @@ namespace Villa_Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var response = await _villaNumberService.DeleteAsync<APIResponse>(villaVM.VillaNumber.VillaNo);
+                var response = await _villaNumberService.DeleteAsync<APIResponse>(villaVM.VillaNumber.VillaNo, HttpContext.Session.GetString(SD.SessionToken));
                 if (response != null && response.IsSuccess)
                 {
                     TempData["success"] = "Deleted seccessfully";
