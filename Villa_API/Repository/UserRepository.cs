@@ -14,18 +14,20 @@ namespace Villa_API.Repository
     public class UserRepository : IUserRepository
     {
         private readonly ApplicationDbContext _db;
-        private string secretKey;
+        private string _secretKey;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
+
         public UserRepository(ApplicationDbContext db, IConfiguration configuration, UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             _db = db;
-            secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
+            _secretKey = configuration.GetValue<string>("ApiSettings:SecretKey");
             _userManager = userManager;
-            _mapper = mapper;
             _roleManager = roleManager;
+            _mapper = mapper;
+            
         }
 
         public bool IsUniqueUser(string username)
@@ -55,7 +57,7 @@ namespace Villa_API.Repository
             var roles = await _userManager.GetRolesAsync(user);
             //neu co user  thi tao ra JWT token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secretKey); //key de ma hoa token - chuyen sang kieu byte
+            var key = Encoding.ASCII.GetBytes(_secretKey); //key de ma hoa token - chuyen sang kieu byte
             //trong token co role va id cua user
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
@@ -84,7 +86,8 @@ namespace Villa_API.Repository
                 UserName = registerationRequestDTO.UserName,
                 Name = registerationRequestDTO.Name,
                 Email = registerationRequestDTO.UserName,
-                NormalizedEmail = registerationRequestDTO.UserName.ToUpper()
+                NormalizedEmail = registerationRequestDTO.UserName.ToUpper(),
+                
 
             };
 
@@ -98,7 +101,7 @@ namespace Villa_API.Repository
                         await _roleManager.CreateAsync(new IdentityRole("admin"));
                         await _roleManager.CreateAsync(new IdentityRole("customer"));
                     }
-                    await _userManager.AddToRoleAsync(user, "admin");
+                    await _userManager.AddToRoleAsync(user, registerationRequestDTO.Role);
                     var userDTO = _db.ApplicationUsers.FirstOrDefault(u => u.UserName == registerationRequestDTO.UserName);
                     return _mapper.Map<UserDTO>(userDTO);
                 }

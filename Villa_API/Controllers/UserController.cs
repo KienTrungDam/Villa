@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Villa_API.Models;
 using Villa_API.Models.DTO;
@@ -10,18 +11,19 @@ namespace Villa_API.Controllers
     [ApiController]
     public class UserController : Controller
     {
-        private readonly IUserRepository _userRepo;
+        //private readonly IUserRepository _userRepo;
+        private readonly IUnitOfWork _unitOfWork;
         protected APIResponse _response;
-        public UserController(IUserRepository userRepo)
+        public UserController(IUnitOfWork unitOfWork)
         {
-            _userRepo = userRepo;
+            _unitOfWork = unitOfWork;
             _response = new APIResponse();
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
         {
             //send the model to the repository
-            var loginResponse = await _userRepo.Login(model);
+            var loginResponse = await _unitOfWork.User.Login(model);
             //check if the user is null
             if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
             {
@@ -39,7 +41,7 @@ namespace Villa_API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO model)
         {
-            bool ifUserNameUnique = _userRepo.IsUniqueUser(model.UserName);
+            bool ifUserNameUnique = _unitOfWork.User.IsUniqueUser(model.UserName);
             // check if username is unique
             if (!ifUserNameUnique)
             {
@@ -49,7 +51,7 @@ namespace Villa_API.Controllers
                 return BadRequest(_response);
             }
             //send the model to the repository
-            var user = await _userRepo.Register(model);
+            var user = await _unitOfWork.User.Register(model);
             if (user == null)
             {
                 _response.IsSuccess = false;
@@ -62,6 +64,8 @@ namespace Villa_API.Controllers
             _response.IsSuccess = true;
             return Ok(_response);
         }
+
+        
 
     }
 }

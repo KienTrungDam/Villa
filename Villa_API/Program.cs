@@ -26,7 +26,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(option => {
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 builder.Services.AddResponseCaching();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
 /*builder.Services.AddApiVersioning(options =>
